@@ -1,3 +1,5 @@
+using Application.Core;
+using Application.Employees.Queries;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 
@@ -14,6 +16,10 @@ builder.Services.AddDbContext<AppDbContext>(opt =>
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+builder.Services.AddMediatR(x => x.RegisterServicesFromAssemblyContaining<GetEmployeeList.Handler>());
+
+builder.Services.AddAutoMapper(cfg => cfg.AddMaps(typeof(MappingProfiles).Assembly));
 
 var app = builder.Build();
 
