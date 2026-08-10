@@ -57,4 +57,16 @@ public class EmployeesController() : BaseApiController
 
         return NoContent();
     }
+
+    [HttpPost("employees/bulk")]
+    public async Task<ActionResult> BulkImportEmployees(IFormFile file)
+    {
+        if (file == null || file.Length == 0)
+            return BadRequest(new { message = "Please upload a valid non-empty CSV file." });
+
+        using var stream = file.OpenReadStream();
+        var result = await Mediator.Send(new BulkImportEmployees.Command { FileStream = stream });
+
+        return Ok(result);
+    }
 }
