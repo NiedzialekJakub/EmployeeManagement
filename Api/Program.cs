@@ -2,6 +2,9 @@ using Application.Core;
 using Application.Employees.Queries;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
+using FluentValidation;
+using Application.Employees.Commands;
+using Api.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +24,14 @@ builder.Services.AddMediatR(x => x.RegisterServicesFromAssemblyContaining<GetEmp
 
 builder.Services.AddAutoMapper(cfg => cfg.AddMaps(typeof(MappingProfiles).Assembly));
 
+builder.Services.AddValidatorsFromAssemblyContaining<CreateEmployeeValidator>();
+
+builder.Services.AddMediatR(cfg =>
+{
+    cfg.RegisterServicesFromAssembly(typeof(CreateEmployee.Handler).Assembly);
+    cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -28,6 +39,8 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+
+app.UseMiddleware<ExceptionMiddleware>();
 
 app.MapControllers();
 
